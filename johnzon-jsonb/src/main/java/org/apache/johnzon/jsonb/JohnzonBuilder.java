@@ -272,7 +272,23 @@ public class JohnzonBuilder implements JsonbBuilder {
 
         builder.setReadAttributeBeforeWrite(
                 config.getProperty("johnzon.readAttributeBeforeWrite").map(Boolean.class::cast).orElse(false));
-
+        builder.setAutoAdjustStringBuffers(
+                config.getProperty("johnzon.autoAdjustBuffer").map(Boolean.class::cast).orElse(true));
+        config.getProperty("johnzon.serialize-value-filter")
+                .map(s -> {
+                    if (String.class.isInstance(s)) {
+                        try {
+                            return SerializeValueFilter.class.cast(
+                                    Thread.currentThread().getContextClassLoader().loadClass(s.toString()).getConstructor().newInstance());
+                        } catch (final InstantiationException | IllegalAccessException | NoSuchMethodException | ClassNotFoundException e) {
+                            throw new IllegalArgumentException(e);
+                        } catch (InvocationTargetException e) {
+                            throw new IllegalArgumentException(e.getCause());
+                        }
+                    }
+                    return s;
+                })
+                .ifPresent(s -> builder.setSerializeValueFilter(SerializeValueFilter.class.cast(s)));
         config.getProperty(JsonbConfig.SERIALIZERS).map(JsonbSerializer[].class::cast).ifPresent(serializers -> {
             Stream.of(serializers).forEach(s -> {
                 final ParameterizedType pt = findPT(s, JsonbSerializer.class);

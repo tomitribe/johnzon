@@ -207,4 +207,23 @@ public class ConfigurableJohnzonProvider<T> implements MessageBodyWriter<T>, Mes
     public void setPrimitiveConverters(final boolean val) {
         builder.setPrimitiveConverters(val);
     }
+
+    public void setSerializeValueFilter(final String val) {
+        try {
+            builder.setSerializeValueFilter(SerializeValueFilter.class.cast(
+                    Thread.currentThread().getContextClassLoader().loadClass(val).getConstructor().newInstance()));
+        } catch (final InstantiationException | IllegalAccessException | NoSuchMethodException | ClassNotFoundException e) {
+            throw new IllegalArgumentException(e);
+        } catch (InvocationTargetException e) {
+            throw new IllegalArgumentException(e.getCause());
+        }
+    }
+
+    public void setUseBigDecimalForFloats(final boolean useBigDecimalForFloats) {
+        builder.setUseBigDecimalForFloats(useBigDecimalForFloats);
+    }
+
+    public void setAutoAdjustStringBuffers(final boolean autoAdjustStringBuffers) {
+        builder.setAutoAdjustStringBuffers(autoAdjustStringBuffers);
+    }
 }

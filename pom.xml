@@ -403,10 +403,9 @@
   </distributionManagement>
 
   <scm>
-    <connection>scm:git:https://git-wip-us.apache.org/repos/asf/johnzon.git</connection>
-    <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/johnzon.git</developerConnection>
-    <url>https://git-wip-us.apache.org/repos/asf?p=johnzon.git</url>
-    <tag>v0.9.5</tag>
+    <connection>scm:git:git@github.com:tomitribe/johnzon.git</connection>
+    <developerConnection>scm:git:git@github.com:tomitribe/johnzon.git</developerConnection>
+    <url>git@github.com:tomitribe/johnzon.git</url>
   </scm>
 
   <reporting>

@@ -416,6 +416,11 @@
     </snapshotRepository>
   </distributionManagement>
 
+  <scm>
+    <connection>scm:git:git@github.com:tomitribe/johnzon.git</connection>
+    <developerConnection>scm:git:git@github.com:tomitribe/johnzon.git</developerConnection>
+    <url>git@github.com:tomitribe/johnzon.git</url>
+  </scm>
 
   <reporting>
     <plugins>

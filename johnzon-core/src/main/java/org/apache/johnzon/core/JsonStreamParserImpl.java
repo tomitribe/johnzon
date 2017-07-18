@@ -32,7 +32,7 @@ import java.util.NoSuchElementException;
 
 //This class represents either the Json tokenizer and the Json parser.
 
-public class JsonStreamParserImpl implements JsonChars, JohnzonJsonParser {
+public class JsonStreamParserImpl implements JsonChars, JsonParser {
     private final boolean autoAdjust;
 
     //the main buffer where the stream will be buffered

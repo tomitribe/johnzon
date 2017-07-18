@@ -394,16 +394,6 @@ public class MapperBuilder {
         return this;
     }
 
-    public MapperBuilder setSerializeValueFilter(final SerializeValueFilter serializeValueFilter) {
-        this.serializeValueFilter = serializeValueFilter;
-        return this;
-    }
-
-    public MapperBuilder setUseBigDecimalForFloats(final boolean useBigDecimalForFloats) {
-        this.useBigDecimalForFloats = useBigDecimalForFloats;
-        return this;
-    }
-
     public MapperBuilder setAutoAdjustStringBuffers(final boolean autoAdjustStringBuffers) {
         this.autoAdjustStringBuffers = autoAdjustStringBuffers;
         return this;

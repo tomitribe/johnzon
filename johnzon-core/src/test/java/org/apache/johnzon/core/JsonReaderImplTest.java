@@ -507,7 +507,7 @@ public class JsonReaderImplTest {
             JsonReaderFactory factory = Json.createReaderFactory(config);
 
             StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < 1000; i++) {
+            for (int i = 0; i < 100; i++) {
                 sb.append('x');
                 String name = sb.toString();
                 String str = "[4, \"\", \"" + name + "\", \"\", \"" + name + "\", \"\", 400]";

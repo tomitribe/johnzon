@@ -207,4 +207,8 @@ public class ConfigurableJohnzonProvider<T> implements MessageBodyWriter<T>, Mes
     public void setPrimitiveConverters(final boolean val) {
         builder.setPrimitiveConverters(val);
     }
+
+    public void setAutoAdjustStringBuffers(final boolean autoAdjustStringBuffers) {
+        builder.setAutoAdjustStringBuffers(autoAdjustStringBuffers);
+    }
 }

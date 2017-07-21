@@ -107,6 +107,7 @@ public class MapperBuilder {
     private int maxSize = -1;
     private int bufferSize = -1;
     private String bufferStrategy;
+    private boolean autoAdjustStringBuffers;
     private Comparator<String> attributeOrder = null;
     private boolean supportConstructors;
     private boolean useGetterForCollections;
@@ -139,6 +140,9 @@ public class MapperBuilder {
             }
             if (pretty) {
                 config.put(JsonGenerator.PRETTY_PRINTING, true);
+            }
+            if (autoAdjustStringBuffers) {
+                config.put("org.apache.johnzon.auto-adjust-buffer", true);
             }
 
             if (generatorFactory == null) {
@@ -387,6 +391,11 @@ public class MapperBuilder {
 
     public MapperBuilder setPrimitiveConverters(final boolean val) {
         this.primitiveConverters = val;
+        return this;
+    }
+
+    public MapperBuilder setAutoAdjustStringBuffers(final boolean autoAdjustStringBuffers) {
+        this.autoAdjustStringBuffers = autoAdjustStringBuffers;
         return this;
     }
 }

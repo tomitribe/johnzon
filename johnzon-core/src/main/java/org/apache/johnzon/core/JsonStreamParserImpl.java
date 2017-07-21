@@ -31,7 +31,9 @@ import java.nio.charset.Charset;
 import java.util.NoSuchElementException;
 
 //This class represents either the Json tokenizer and the Json parser.
-public class JsonStreamParserImpl implements JsonChars, JsonParser{
+
+public class JsonStreamParserImpl implements JsonChars, JsonParser {
+    private final boolean autoAdjust;
 
     //the main buffer where the stream will be buffered
     private final char[] buffer;
@@ -67,7 +69,8 @@ public class JsonStreamParserImpl implements JsonChars, JsonParser{
 
     //this buffer is used to store current String or Number value in case that
     //within the value a buffer boundary is crossed or the string contains escaped characters
-    private final char[] fallBackCopyBuffer;
+    private char[] fallBackCopyBuffer;
+    private boolean releaseFallBackCopyBufferLength;
     private int fallBackCopyBufferLength;
 
     // location (line, column, offset)
@@ -107,27 +110,31 @@ public class JsonStreamParserImpl implements JsonChars, JsonParser{
 
     //detect charset according to RFC 4627
     public JsonStreamParserImpl(final InputStream inputStream, final int maxStringLength,
-            final BufferStrategy.BufferProvider<char[]> bufferProvider, final BufferStrategy.BufferProvider<char[]> valueBuffer) {
+                                final BufferStrategy.BufferProvider<char[]> bufferProvider, final BufferStrategy.BufferProvider<char[]> valueBuffer,
+                                final boolean autoAdjust) {
 
-        this(inputStream, null, null, maxStringLength, bufferProvider, valueBuffer);
+        this(inputStream, null, null, maxStringLength, bufferProvider, valueBuffer, autoAdjust);
     }
 
     //use charset provided
     public JsonStreamParserImpl(final InputStream inputStream, final Charset encoding, final int maxStringLength,
-            final BufferStrategy.BufferProvider<char[]> bufferProvider, final BufferStrategy.BufferProvider<char[]> valueBuffer) {
+                                final BufferStrategy.BufferProvider<char[]> bufferProvider, final BufferStrategy.BufferProvider<char[]> valueBuffer,
+                                final boolean autoAdjust) {
 
-        this(inputStream, null, encoding, maxStringLength, bufferProvider, valueBuffer);
+        this(inputStream, null, encoding, maxStringLength, bufferProvider, valueBuffer, autoAdjust);
     }
 
     public JsonStreamParserImpl(final Reader reader, final int maxStringLength, final BufferStrategy.BufferProvider<char[]> bufferProvider,
-            final BufferStrategy.BufferProvider<char[]> valueBuffer) {
+                                final BufferStrategy.BufferProvider<char[]> valueBuffer, final boolean autoAdjust) {
 
-        this(null, reader, null, maxStringLength, bufferProvider, valueBuffer);
+        this(null, reader, null, maxStringLength, bufferProvider, valueBuffer, autoAdjust);
     }
 
     private JsonStreamParserImpl(final InputStream inputStream, final Reader reader, final Charset encoding, final int maxStringLength,
-            final BufferStrategy.BufferProvider<char[]> bufferProvider, final BufferStrategy.BufferProvider<char[]> valueBuffer) {
+                                 final BufferStrategy.BufferProvider<char[]> bufferProvider, final BufferStrategy.BufferProvider<char[]> valueBuffer,
+                                 final boolean autoAdjust) {
 
+        this.autoAdjust = autoAdjust;
         this.maxValueLength = maxStringLength <= 0 ? 8192 : maxStringLength;
         this.fallBackCopyBuffer = valueBuffer.newBuffer();
         this.buffer = bufferProvider.newBuffer();
@@ -155,17 +162,31 @@ public class JsonStreamParserImpl implements JsonChars, JsonParser{
 
     //copy content between "start" and "end" from buffer to value buffer 
     private void copyCurrentValue() {
+        final int length = endOfValueInBuffer - startOfValueInBuffer;
+        if (length > 0) {
 
-        if ((endOfValueInBuffer - startOfValueInBuffer) > 0) {
-
-            if ((endOfValueInBuffer - startOfValueInBuffer) > maxValueLength) {
+            if (length > maxValueLength) {
                 throw tmc();
             }
 
-            System.arraycopy(buffer, startOfValueInBuffer, fallBackCopyBuffer, fallBackCopyBufferLength,
-                    (endOfValueInBuffer - startOfValueInBuffer));
-            fallBackCopyBufferLength += (endOfValueInBuffer - startOfValueInBuffer);
+            if (fallBackCopyBufferLength >= fallBackCopyBuffer.length - length) { // not good at runtime but handled
+                if (!autoAdjust) {
+                    throw new ArrayIndexOutOfBoundsException("Buffer too small for such a long string");
+                }
 
+                final char[] newArray = new char[fallBackCopyBuffer.length + 1024]; // small incr to not explode the mem
+                // TODO: log to adjust size once?
+                System.arraycopy(fallBackCopyBuffer, 0, newArray, 0, fallBackCopyBufferLength);
+                System.arraycopy(buffer, startOfValueInBuffer, newArray, fallBackCopyBufferLength, length);
+                if (releaseFallBackCopyBufferLength) {
+                    bufferProvider.release(fallBackCopyBuffer);
+                    releaseFallBackCopyBufferLength = false;
+                }
+                fallBackCopyBuffer = newArray;
+            } else {
+                System.arraycopy(buffer, startOfValueInBuffer, fallBackCopyBuffer, fallBackCopyBufferLength, length);
+            }
+            fallBackCopyBufferLength += length;
         }
 
         startOfValueInBuffer = endOfValueInBuffer = -1;
@@ -175,9 +196,10 @@ public class JsonStreamParserImpl implements JsonChars, JsonParser{
     public final boolean hasNext() {
 
         if (currentStructureElement != null ||
-            (previousEvent != END_ARRAY && previousEvent != END_OBJECT &&
-                previousEvent != VALUE_STRING && previousEvent != VALUE_FALSE && previousEvent != VALUE_TRUE && previousEvent != VALUE_NULL && previousEvent != VALUE_NUMBER) ||
-            previousEvent == 0) {
+                (previousEvent != END_ARRAY && previousEvent != END_OBJECT &&
+                        previousEvent != VALUE_STRING && previousEvent != VALUE_FALSE && previousEvent != VALUE_TRUE &&
+                        previousEvent != VALUE_NULL && previousEvent != VALUE_NUMBER) ||
+                previousEvent == 0) {
 
             return true;
         }
@@ -433,7 +455,7 @@ public class JsonStreamParserImpl implements JsonChars, JsonParser{
         if (currentStructureElement == null) {
             currentStructureElement = new StructureElement(null, false);
         } else {
-            if(!currentStructureElement.isArray && previousEvent != KEY_SEPARATOR_EVENT) {
+            if (!currentStructureElement.isArray && previousEvent != KEY_SEPARATOR_EVENT) {
                 throw uexc("Expected :");
             }
             final StructureElement localStructureElement = new StructureElement(currentStructureElement, false);
@@ -473,7 +495,7 @@ public class JsonStreamParserImpl implements JsonChars, JsonParser{
         if (currentStructureElement == null) {
             currentStructureElement = new StructureElement(null, true);
         } else {
-            if(!currentStructureElement.isArray && previousEvent != KEY_SEPARATOR_EVENT) {
+            if (!currentStructureElement.isArray && previousEvent != KEY_SEPARATOR_EVENT) {
                 throw uexc("Expected \"");
             }
             final StructureElement localStructureElement = new StructureElement(currentStructureElement, true);
@@ -577,7 +599,7 @@ public class JsonStreamParserImpl implements JsonChars, JsonParser{
                 bufferPos--; //unread one char
 
             }
-        }  while (true);
+        } while (true);
 
         // before this do while(true) it was:
         //
@@ -914,7 +936,9 @@ public class JsonStreamParserImpl implements JsonChars, JsonParser{
     @Override
     public void close() {
         bufferProvider.release(buffer);
-        valueProvider.release(fallBackCopyBuffer);
+        if (releaseFallBackCopyBufferLength) {
+            valueProvider.release(fallBackCopyBuffer);
+        }
 
         try {
             in.close();

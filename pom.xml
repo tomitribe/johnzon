@@ -33,7 +33,7 @@
   <groupId>org.apache.johnzon</groupId>
   <artifactId>johnzon</artifactId>
   <packaging>pom</packaging>
-  <version>1.0.1</version>
+  <version>1.0.1-TT.1-SNAPSHOT</version>
   <name>Apache Johnzon</name>
   <description>Apache Johnzon is an implementation of JSR-353 (JavaTM API for JSON Processing).</description>
   <inceptionYear>2014</inceptionYear>
@@ -54,6 +54,20 @@
     <!-- JVM values for surefire plugin -->
     <surefire.jvm.params>-Xms1024m -Xmx2048m -Dfile.encoding=UTF-8</surefire.jvm.params>
   </properties>
+
+  <distributionManagement>
+    <repository>
+      <id>tomitribe.releases.https</id>
+      <name>Tomitribe Release Distribution Repository</name>
+      <url>https://repository.tomitribe.com/service/local/staging/deploy/maven2</url>
+    </repository>
+
+    <snapshotRepository>
+      <id>tomitribe.snapshots.https</id>
+      <name>Tomitribe Development Snapshot Repository</name>
+      <url>https://repository.tomitribe.com/content/repositories/snapshots-tomitribe</url>
+    </snapshotRepository>
+  </distributionManagement>
 
   <modules>
     <module>johnzon-core</module>
@@ -388,20 +402,6 @@
     <system>jira</system>
     <url>https://issues.apache.org/jira/browse/JOHNZON</url>
   </issueManagement>
-
-  <distributionManagement>
-    <site>
-      <id>apache.website</id>
-      <url>${pubsub.url}</url>
-    </site>
-  </distributionManagement>
-
-  <scm>
-    <connection>scm:git:https://git-wip-us.apache.org/repos/asf/johnzon.git</connection>
-    <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/johnzon.git</developerConnection>
-    <url>https://git-wip-us.apache.org/repos/asf?p=johnzon.git</url>
-    <tag>v1.0.1</tag>
-  </scm>
 
   <reporting>
     <plugins>

@@ -403,6 +403,13 @@
     <url>https://issues.apache.org/jira/browse/JOHNZON</url>
   </issueManagement>
 
+  <scm>
+    <connection>scm:git:https://github.com/tomitribe/johnzon.git</connection>
+    <developerConnection>scm:git:https://github.com/tomitribe/johnzon.git</developerConnection>
+    <url>https://github.com/tomitribe/johnzon.git</url>
+    <tag>v1.0.1-TT.1</tag>
+  </scm>
+
   <reporting>
     <plugins>
       <plugin>

@@ -138,7 +138,10 @@ public class JohnzonBuilder implements JsonbBuilder {
         if (config == null) {
             config = new JsonbConfig();
         }
-
+        builder.setUseBigDecimalForObjectNumbers(config.getProperty("johnzon.use-big-decimal-for-object")
+                .map(this::toBool).orElse(true));
+        builder.setMaxBigDecimalScale(config.getProperty("johnzon.max-big-decimal-scale")
+                .map(this::toInt).orElse(1000));
         if (config.getProperty(JsonbConfig.FORMATTING).map(Boolean.class::cast).orElse(false)) {
             builder.setPretty(true);
         }
@@ -209,6 +212,11 @@ public class JohnzonBuilder implements JsonbBuilder {
         config.getProperty("johnzon.useBigDecimalForFloats")
                 .map(v -> !Boolean.class.isInstance(v) ? Boolean.parseBoolean(v.toString()) : Boolean.class.cast(v))
                 .ifPresent(builder::setUseBigDecimalForFloats);
+
+        config.getProperty("johnzon.use-big-decimal-for-object").map(this::toBool).orElse(true);
+        builder.setMaxBigDecimalScale(
+                config.getProperty("johnzon.max-big-decimal-scale").map(this::toInt).orElse(1000));
+
         config.getProperty("johnzon.deduplicateObjects")
                 .map(v -> !Boolean.class.isInstance(v) ? Boolean.parseBoolean(v.toString()) : Boolean.class.cast(v))
                 .ifPresent(builder::setDeduplicateObjects);
@@ -295,6 +303,11 @@ public class JohnzonBuilder implements JsonbBuilder {
 
         getBeanManager(); // force detection
 
+        builder.setReadAttributeBeforeWrite(config.getProperty("johnzon.readAttributeBeforeWrite")
+                .map(Boolean.class::cast).orElse(false));
+        builder.setAutoAdjustStringBuffers(config.getProperty("johnzon.autoAdjustBuffer")
+                .map(Boolean.class::cast).orElse(true));
+
         builder.setReadAttributeBeforeWrite(
                 config.getProperty("johnzon.readAttributeBeforeWrite").map(Boolean.class::cast).orElse(false));
         builder.setAutoAdjustStringBuffers(
@@ -371,6 +384,13 @@ public class JohnzonBuilder implements JsonbBuilder {
                 }
             }
         } : new JohnzonJsonb(mapper);
+    }
+
+    private Boolean toBool(final Object v) {
+        return !Boolean.class.isInstance(v) ? Boolean.parseBoolean(v.toString()) : Boolean.class.cast(v);
+    }
+    private Integer toInt(final Object v) {
+        return !Integer.class.isInstance(v) ? Integer.parseInt(v.toString()) : Integer.class.cast(v);
     }
 
     private AccessMode toAccessMode(final Object s) {

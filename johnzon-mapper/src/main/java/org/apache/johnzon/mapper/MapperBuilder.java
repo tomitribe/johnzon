@@ -17,7 +17,7 @@
  * under the License.
  */
 package org.apache.johnzon.mapper;
-
+import org.apache.johnzon.mapper.util.JsonProviderUtil;
 import org.apache.johnzon.core.JsonParserFactoryImpl;
 import org.apache.johnzon.mapper.access.AccessMode;
 import org.apache.johnzon.mapper.access.BaseAccessMode;
@@ -134,10 +134,13 @@ public class MapperBuilder {
     private SerializeValueFilter serializeValueFilter;
     private boolean useBigDecimalForFloats;
     private Boolean deduplicateObjects = null;
+    private int maxBigDecimalScale = 1000;
+    private boolean useBigDecimalForObjectNumbers;
 
     public Mapper build() {
         if (readerFactory == null || generatorFactory == null) {
             final JsonProvider provider = JsonProvider.provider();
+            JsonProviderUtil.setMaxBigDecimalScale(provider, maxBigDecimalScale);
             final Map<String, Object> config = new HashMap<String, Object>();
             if (bufferStrategy != null) {
                 config.put(JsonParserFactoryImpl.BUFFER_STRATEGY, bufferStrategy);
@@ -224,7 +227,8 @@ public class MapperBuilder {
                         skipNull, skipEmptyArray,
                         treatByteArrayAsBase64, treatByteArrayAsBase64URL, readAttributeBeforeWrite,
                         accessMode, encoding, attributeOrder, enforceQuoteString, failOnUnknownProperties,
-                        serializeValueFilter, useBigDecimalForFloats, deduplicateObjects),
+                        serializeValueFilter, useBigDecimalForFloats,useBigDecimalForObjectNumbers,maxBigDecimalScale,
+                        deduplicateObjects),
                 closeables);
     }
 
@@ -375,6 +379,11 @@ public class MapperBuilder {
         return this;
     }
 
+    public MapperBuilder setMaxBigDecimalScale(final int maxBigDecimalScale) {
+        this.maxBigDecimalScale = maxBigDecimalScale;
+        return this;
+    }
+
     public MapperBuilder setReadAttributeBeforeWrite(final boolean readAttributeBeforeWrite) {
         this.readAttributeBeforeWrite = readAttributeBeforeWrite;
         return this;
@@ -453,6 +462,11 @@ public class MapperBuilder {
      */
     public MapperBuilder setDeduplicateObjects(Boolean deduplicateObjects) {
         this.deduplicateObjects = deduplicateObjects;
+        return this;
+    }
+
+    public MapperBuilder setUseBigDecimalForObjectNumbers(final boolean value) {
+        this.useBigDecimalForObjectNumbers = value;
         return this;
     }
 }

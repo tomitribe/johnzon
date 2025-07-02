@@ -29,7 +29,7 @@
   <groupId>org.apache.johnzon</groupId>
   <artifactId>johnzon</artifactId>
   <packaging>pom</packaging>
-  <version>2.0.3-TT.1-SNAPSHOT</version>
+  <version>2.0.3-TT.1</version>
   <name>Apache Johnzon</name>
   <description>Apache Johnzon is an implementation of JSR-353 (JavaTM API for JSON Processing).</description>
   <inceptionYear>2014</inceptionYear>
@@ -38,7 +38,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <project.build.outputTimestamp>1711178757</project.build.outputTimestamp>
+    <project.build.outputTimestamp>1751490302</project.build.outputTimestamp>
 
     <maven.compiler.release>11</maven.compiler.release>
     <maven.compiler.target>${maven.compiler.release}</maven.compiler.target>
@@ -536,7 +536,7 @@
     <connection>scm:git:git@github.com:tomitribe/johnzon.git</connection>
     <developerConnection>scm:git:git@github.com:tomitribe/johnzon.git</developerConnection>
     <url>git@github.com:tomitribe/johnzon.git</url>
-    <tag>HEAD</tag>
+    <tag>v2.0.3-TT.1</tag>
   </scm>
 
   <reporting>
